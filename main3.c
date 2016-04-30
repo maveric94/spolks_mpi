@@ -11,8 +11,6 @@ int main(int argc, char *argv[])
     MPI_Comm_rank(MPI_COMM_WORLD, &absRank);
     MPI_Comm_size(MPI_COMM_WORLD, &numnodes); 
     
-    
-    
     int numberOfGroups = atoi(argv[1]);
     int digitsToCount = atoi(argv[2]); 
 
@@ -20,8 +18,7 @@ int main(int argc, char *argv[])
   
     int color = MPI_Rand_Split(numberOfGroups, absRank, numnodes, &comm); 
     
-    char outputFilename[20];
-    sprintf(outputFilename, "output%d.txt", color);
+    char *outputFilename = "output.txt";
 
     int myrank;
     MPI_Comm_rank(comm, &myrank);
@@ -31,11 +28,15 @@ int main(int argc, char *argv[])
     
     MPI_File outputFile;  
 
-    int slaveProcessDigitsCount = digitsToCount / groupSize;
-    int masterProcessDigitsCount = digitsToCount - ((groupSize - 1) * slaveProcessDigitsCount);
+    int digitsPerGroup = digitsToCount / numberOfGroups;
+    
+    int slaveProcessDigitsCount = digitsPerGroup / groupSize;
+    int masterProcessDigitsCount = digitsPerGroup - ((groupSize - 1) * slaveProcessDigitsCount);
 
     int length = (myrank == 0) ? masterProcessDigitsCount : slaveProcessDigitsCount;
-    int offset = (myrank == 0) ? 0 : masterProcessDigitsCount + (myrank - 1) * slaveProcessDigitsCount;
+    int offset = (color * digitsPerGroup) + (myrank == 0 ? 0 : masterProcessDigitsCount + (myrank - 1) * slaveProcessDigitsCount);
+
+    printf("group %d calculating %d digits from %d offset\n", color,  length,  offset);
 
     double startTime;
     if (myrank == 0)
@@ -66,7 +67,7 @@ int main(int argc, char *argv[])
 
     if (myrank == 0)
     {
-        printf("Group #%d, processes count %d, time is %f\n\n", color, groupSize, MPI_Wtime() - startTime);
+        printf("\ngroup %d process count %d time %f", color, groupSize, MPI_Wtime() - startTime);
     }
 
     MPI_Finalize();

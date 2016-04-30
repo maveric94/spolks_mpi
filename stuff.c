@@ -156,6 +156,7 @@ void MPIerror(int error_code, int myrank)
 
 void printResult(char *result, int length)
 {
+    printf("\n");
     for (int count = 0; count < length; count++)
     {
         if (count % 10 == 0)
@@ -175,6 +176,7 @@ void printResult(char *result, int length)
 
     printf("\n");
 }
+
 
 int MPI_Rand_Split(int numberOfGroups, int rank, int numnodes, MPI_Comm* comm)
 {
@@ -205,23 +207,31 @@ int MPI_Rand_Split(int numberOfGroups, int rank, int numnodes, MPI_Comm* comm)
         numbers[i] = num;
     }
     qsort (numbers, numberOfGroups-1, sizeof(int), compare);
+
+
     
     for(int i = 0; i < numberOfGroups - 1; i++)
-    {
+    {         
         if(rank < numbers[i])
         {
             MPI_Comm_split( MPI_COMM_WORLD, i, rank, comm);
-            //free(numbers);
+        
+            free(numbers);
+
             return i;
         }
     }
     
     if(rank >= numbers[numberOfGroups - 2])
     {
-        //free(numbers);
+        free(numbers);
+       
         MPI_Comm_split( MPI_COMM_WORLD, numberOfGroups - 1, rank, comm);
+        
         return numberOfGroups - 1;
     }
+
+    printf("NOOOOOOOO\n");
 }
 
 int compare (const void * a, const void * b)

@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 
     if (myrank == 0)
     {
-        printf("%d processes\n %d digits count\n %d to all\n %d to last\n", nodesCount, digitsCount, digitsToProcess, digitsToLastProcess);
+        //printf("%d processes\n %d digits count\n %d to all\n %d to last\n", nodesCount, digitsCount, digitsToProcess, digitsToLastProcess);
     }
     
     double startTime;  
@@ -76,8 +76,9 @@ int main(int argc, char *argv[])
             MPIerror(error, myrank);
         }         
 
+        printf("time %f\n", MPI_Wtime() - startTime);
         printResult(result, digitsCount);
-        printf("\nTime is %f\n\n", MPI_Wtime() - startTime);
+        
 
         free(result);
     }

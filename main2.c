@@ -146,13 +146,26 @@ int main(int argc, char *argv[])
         {
             MPI_Send(result, digitsPerGroup, MPI_CHAR, 0, TAG, MPI_COMM_WORLD);
         }
-
-        printf("\ngroup %d process count %d time %f", color, groupSize, MPI_Wtime() - startTime);
+        double workTime = MPI_Wtime() - startTime;
+        printf("\ngroup %d process count %d time %f", color, groupSize, workTime);
 
         if (color == 0)
         {
+            for (int i = 0; i < numberOfGroups - 1; i++)
+            {
+                double temp;
+                MPI_Recv((void *)&temp, 1, MPI_DOUBLE, MPI_ANY_SOURCE, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                workTime += temp;
+            }
+
+            printf("\n\ntotal time %f", workTime);
+
             printResult(finalResult, digitsToCount);
             free(finalResult);
+        }
+        else
+        {
+            MPI_Send((void *)&workTime, 1, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD);
         }
 
         free(result);
